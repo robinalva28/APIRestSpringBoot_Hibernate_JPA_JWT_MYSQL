@@ -1,9 +1,11 @@
 package com.javaspring.java.controllers;
 
+import com.javaspring.java.dao.UsuarioDao;
 import com.javaspring.java.models.Usuario;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import de.mkammerer.argon2.Argon2;
+import de.mkammerer.argon2.Argon2Factory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -11,7 +13,10 @@ import java.util.List;
 @RestController
 public class UsuarioController {
 
-    @RequestMapping(value = "usuario/{id}")
+    @Autowired
+    private UsuarioDao usuarioDao;
+
+    @RequestMapping(value = "api/usuario/{id}", method = RequestMethod.GET)
     public Usuario getUsuario(@PathVariable Long id){
         Usuario usuario = new Usuario();
         usuario.setId(id);
@@ -22,45 +27,24 @@ public class UsuarioController {
         return usuario;
     }
 
-    @RequestMapping(value = "usuarios")
+    @RequestMapping(value = "api/usuarios", method = RequestMethod.GET)
     public List<Usuario> getUsuarios(){
-        List<Usuario> usuarios = new ArrayList<>();
-        Usuario usuario = new Usuario();
-        usuario.setId(1L);
-        usuario.setNombre("Robinson");
-        usuario.setApellido("Alvarez");
-        usuario.setEmail("robinnet28@gmail.com");
-        usuario.setTelefono("1164897700");
-
-        Usuario usuario2 = new Usuario();
-        usuario2.setId(2L);
-        usuario2.setNombre("Alejandro");
-        usuario2.setApellido("Mogollón");
-        usuario2.setEmail("alehjandro@gmail.com");
-        usuario2.setTelefono("1133445500");
-
-        Usuario usuario3 = new Usuario();
-        usuario3.setId(3L);
-        usuario3.setNombre("Sofía");
-        usuario3.setApellido("Mariorca");
-        usuario3.setEmail("sofia@gmail.com");
-        usuario3.setTelefono("1164444555");
-
-        usuarios.add(usuario);
-        usuarios.add(usuario2);
-        usuarios.add(usuario3);
-        return usuarios;
+      return usuarioDao.getUsuarios();
 
     }
 
-    @RequestMapping(value = "usuario2")
-    public Usuario eliminarUsuario(){
-        Usuario usuario = new Usuario();
-        usuario.setNombre("Robinson");
-        usuario.setApellido("Alvarez");
-        usuario.setEmail("robinnet28@gmail.com");
-        usuario.setTelefono("1164897700");
-        return usuario;
+    @RequestMapping(value = "api/usuarios", method = RequestMethod.POST)
+    public void registrarUsuario(@RequestBody Usuario usuario){
+        Argon2 argon2 = Argon2Factory.create(Argon2Factory.Argon2Types.ARGON2d);
+        String hash = argon2.hash(1,1024,1,usuario.getPassword());
+        usuario.setPassword(hash);
+        usuarioDao.registrar(usuario);
+
+    }
+
+    @RequestMapping(value = "api/usuarios/{id}", method = RequestMethod.DELETE)
+    public void eliminar(@PathVariable Long id){
+        usuarioDao.eliminar(id);
     }
     @RequestMapping(value = "usuario3")
     public Usuario buscar(){
