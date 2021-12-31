@@ -2,7 +2,12 @@
 $(document).ready(function() {
   cargarUsuarios();
   $('#usuarios').DataTable();
+  actualizarEmailUsuario();
 });
+
+function actualizarEmailUsuario(){
+    document.getElementById("txt-email-usuario").outerHTML = localStorage.email;
+}
 
 async function cargarUsuarios(){
 
@@ -32,7 +37,7 @@ function getHeaders(){
     return {
         'Accept': 'application/json',
         'Content-Type': 'application/json',
-        'Autorization': localStorage.token
+        'Authorization': localStorage.token
     }
 }
 

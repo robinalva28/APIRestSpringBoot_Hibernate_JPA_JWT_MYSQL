@@ -32,13 +32,11 @@ public class UsuarioController {
     }
 
     @RequestMapping(value = "api/usuarios", method = RequestMethod.GET)
-    public List<Usuario> getUsuarios(@RequestHeader(value = "Autorization") String token){
+    public List<Usuario> getUsuarios(@RequestHeader(value = "Authorization") String token){
 
-        String usuarioId = jwtUtil.getKey(token);
-        if(usuarioId ==null){
-            return new ArrayList<>();
-        }
-      return usuarioDao.getUsuarios();
+        if(!validarToken(token)){return null;}
+
+        return usuarioDao.getUsuarios();
 
     }
 
@@ -53,16 +51,14 @@ public class UsuarioController {
     }
 
     @RequestMapping(value = "api/usuarios/{id}", method = RequestMethod.DELETE)
-    public void eliminar(@PathVariable Long id){
+    public void eliminar(@RequestHeader(value = "Authorization") String token,
+                         @PathVariable Long id){
+        if(!validarToken(token)){return;}
         usuarioDao.eliminar(id);
     }
-    @RequestMapping(value = "usuario3")
-    public Usuario buscar(){
-        Usuario usuario = new Usuario();
-        usuario.setNombre("Robinson");
-        usuario.setApellido("Alvarez");
-        usuario.setEmail("robinnet28@gmail.com");
-        usuario.setTelefono("1164897700");
-        return usuario;
+
+    private boolean validarToken(String token){
+        String usuarioId = jwtUtil.getKey(token);
+        return usuarioId != null;
     }
 }
